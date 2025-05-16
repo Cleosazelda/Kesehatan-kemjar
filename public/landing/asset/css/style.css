@@ -1,0 +1,429 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: "Nunito", sans;
+}
+
+html{
+    scroll-behavior: smooth;
+}
+
+header{
+    /* border: 1px solid; */
+    position: fixed;
+    width: 100%;
+    /* background-color: #fff; */
+    
+
+    background-color: #f8f9fa;
+    top: 0px;
+    /* border-bottom: 1px solid #FF2542; */
+    border-bottom: 2px solid #749BC2;
+    box-shadow: 0 4px 18px 0px #e3ece7;
+    z-index: 5;
+}
+
+header nav{
+    /* border: 1px solid; */
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header nav .icon a{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    /* border: 1px solid; */
+}
+
+header nav .icon a img{
+    width: 50px;
+}
+
+header nav .icon a span{
+    /* border: 1px solid; */
+    width: 170px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #749BC2;
+}
+
+header nav .nav-menu{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+header nav .nav-menu a{
+    text-decoration: none;
+    color: #343a40;
+    font-weight: 400;
+    transition: ease-in-out 200ms;
+
+}
+
+header nav .nav-menu a:hover{
+    color: #4682A9;
+}
+
+header nav .nav-menu .login{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #749BC2;
+    color: #fff;
+    font-weight: 500;
+    transition: 300ms ease-in-out;
+    border: 1px solid #00000000;
+}
+
+header nav .nav-menu .login:hover{
+    background-color: #fff;
+    border: 1px solid #749BC2;
+}
+
+footer{
+    height: 120px;
+    background-color: #343a40;
+
+    /* background-color: #F00; */
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+section{
+    /* padding-top: 100px; */
+    /* padding-bottom: 100px; */
+    /* min-height: 100vh; */
+    padding: 80px 20px;
+}
+
+section  h1{
+    color: #749BC2;
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+section  h2{
+    color: #749BC2;
+    font-weight: 800;
+}
+
+.icon a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  
+  .icon img {
+    width: 40px;
+    height: auto;
+    margin-right: 10px;
+  }
+  
+  .icon span {
+    white-space: nowrap;
+    font-weight: bold;
+    color: #333;
+  }
+  
+
+section  p{
+    margin-top: 20px;
+    text-align: justify;
+}
+
+section a{
+    background-color: #749BC2;
+    color: #fff;
+    transition: ease-in-out 200ms;
+    text-decoration: none;
+    border: 1px solid #00000000;
+}
+
+section a:hover{
+    /* transform: scale(1.09); */
+    background-color: #ffffff;
+    color: #4682A9;
+    border: 1px solid #4682A9;
+}
+
+.daftar-penyakit{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Grid responsif */
+    gap: 20px; /* Jarak antar item */
+}
+
+.daftar-penyakit .penyakit{
+    width: 16rem; 
+    cursor: pointer;
+}
+
+.img-cover{
+    border-radius: 40px;
+    width: 12rem;
+    height: 12rem;
+    overflow: hidden;
+}
+
+.img-cover img {
+    width: 100%; /* Gambar mengikuti lebar kontainer */
+    height: auto; /* Tinggi otomatis */
+}
+
+/* .diagnosa{
+    height: 100vh;
+    margin-top: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}  */
+
+/* .custom-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} */
+
+/* .custom-checkbox input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+} */
+
+.my-custom-button {
+    background-color: #749BC2 !important;
+    border-color: #749BC2 !important;
+    color: white !important;
+}
+
+.my-custom-button:hover {
+    background-color: #4682A9 !important;
+    border-color: #4682A9 !important;
+}
+
+
+.custom-checkbox .myCheckbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    border: 3px solid #ccc;
+    border-radius: 50px;
+    position: relative;
+    cursor: pointer;
+}
+
+.submit{
+    padding: 8px;
+    border: 1px solid #ff002200;
+    border-radius: 10px;
+    background-color: #749BC2;
+    color: #fff;
+    font-weight: 500;
+    transition: 300ms ease-in-out;
+}
+
+.submit:hover{
+    background-color: #fff;
+    color: #4682A9;
+    border: 1px solid #4682A9;
+}
+
+.box-login{
+    border: 1px solid;
+    border-radius: 20px;
+}
+
+.autoresizeTextarea {
+    width: 100%; /* Agar textarea mengikuti lebar container */
+    min-height: 50px; /*Tinggi minimal*/
+    resize: none; /* Matikan manual resize */
+    overflow: hidden; /* Sembunyikan scrollbar */
+    box-sizing: border-box; /* Agar padding dihitung ke dalam lebar */
+    padding: 15px;
+    /* border-radius: 20px; */
+    border: none;
+    outline: none;
+    background: none;
+    text-align: justify;
+}
+
+.deskripsi {
+    width: 100%; /* Agar textarea mengikuti lebar container */
+    min-height: 50px; /*Tinggi minimal*/
+    resize: none; /* Matikan manual resize */
+    overflow: hidden; /* Sembunyikan scrollbar */
+    box-sizing: border-box; /* Agar padding dihitung ke dalam lebar */
+    padding: 15px;
+    border-radius: 20px;
+    border: none;
+    background: none;
+    text-align: justify;
+}
+
+.carousel{
+    height: 500px;
+    width: 100%;
+}
+
+.modal-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.modal-image {
+    max-height: 75vh;   /* Menyesuaikan tinggi modal */
+    object-fit: contain; /* Memastikan gambar tetap proporsional */
+}
+
+.img-diagnosis{
+    height: 150px; 
+    width:  150px;
+    border-radius: 30px;
+}
+
+@media only screen and (max-width: 991px) { 
+    #beranda{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero{
+        max-width: 100px;
+    }
+
+    header nav .nav-menu .menu{
+        display: none;
+    }
+
+    section{
+        padding-top: 100px;
+        min-height: max-content;
+    }
+
+    section h1 {
+        font-size: 2rem; /* Ukuran lebih kecil di mobile */
+    }
+
+    .carousel{
+        height: 400px;
+    }
+
+    .kiri{
+        width: 100%;
+    }
+
+    .kanan{
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .daftar-penyakit .penyakit{
+        width: 13rem; 
+        cursor: pointer;
+    }
+
+    .img-cover{
+        border-radius: 40px;
+        width: 10rem;
+        height: 10rem;
+        overflow: hidden;
+    }
+
+    .card-body h5{
+        font-size: 0.9rem;
+    }
+    .img-diagnosis{
+        width: 100px;
+        height: 100px;
+        border-radius: 18px;
+    }
+
+    .modal-image {
+        max-height: 60vh; /* Untuk layar kecil, tinggi dikurangi agar tidak berdesakan */
+    }
+
+    .carousel{
+        height: 280px;
+    }
+} 
+
+@media only screen and (max-width: 575px) {
+    .custom-modal{
+        max-width: 90vw;
+        height: 60vh;
+        margin: 1rem auto;
+    }
+}
+
+
+@media only screen and (max-width: 480px) {
+    .daftar-penyakit .penyakit{
+        width: 11rem; 
+        cursor: pointer;
+    }
+
+    .img-cover{
+        border-radius: 30px;
+        width: 7rem;
+        height: 7rem;
+        overflow: hidden;
+    }
+
+    .card-body h5{
+        font-size: 0.9rem;
+    }
+
+    .img-diagnosis{
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+    }
+
+    .img-diagnosis img{
+        width: 100%;
+        height: 100%;
+    }
+
+    .span{
+        font-size: 12px;
+        line-height: 0.5px;
+    }
+
+    .hypothesis-name{
+        font-size: 12px;
+    }
+
+    .carousel{
+        height: 250px;
+    }
+
+} 
+
+@media print {
+    .deskripsi {
+        height: 500px !important; /* Atur tinggi otomatis */
+        resize: none; /* Matikan manual resize */
+        overflow: hidden; /* Sembunyikan scrollbar */
+        box-sizing: border-box; /* Agar padding dihitung ke dalam lebar */
+        padding: 15px;
+        border-radius: 20px;
+        border: none;
+    }
+}

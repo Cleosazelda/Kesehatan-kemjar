@@ -1,0 +1,14 @@
+- buat tombol delete di halaman diagnosis (done)
+- ubah angka total bayes dari float menjadi persen (done)
+- buat kategori kemungkinan tertinggi hingga terendah (done)
+- tampilkan history untuk user yang login pada dashboard (done)
+- perbaiki halaman expert result (done)
+- buat landing page(done)
+- rapikan halaman detail penyakit (done)
+- rapikan halaman hasil diagnosa 
+- ubah tampillan hasil diagnosa lainnya
+- cari bobot evidence tomat yang sesuai
+
+- input multiple images (opsional)
+- halaman login
+

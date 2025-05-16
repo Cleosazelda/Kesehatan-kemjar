@@ -1,0 +1,16 @@
+Cara menjalankan source code project laravel berbasis web 
+
+1. Download dan install xampp di link berikut : "https://www.apachefriends.org/download.html". *sesuaikan dengan Sistem Oprasi masing masing. 
+2. buka browser ketikan di url "localhost/phpmyadmin"
+3. buat database dengan nama "usmile"
+4. extract source code usmile.zip
+5. buka command prompt lalu arahkan ke folder source code yang sudah diekstrak tadi 
+6. lalu ketikan "php artisan migrate --seed" tunggu sampai selesai.
+7. lalu ketikan "php arisan serve" lalu disitu muncul link. buka link itu dibrowser dan web mya sudah jalan.
+8. jika mau buka file source codenya bisa menggunakan aplikasi text editor seperti Visual Studio Code, Notpad++, Sublime Text, Atom dll.
+9. sebagai user bisa login di usn: user@mail.com pass: user123
+10.sebagai admin bisa login di usn: admin@mail.com pass: admin123
+
+Jika ada yang kurang jelas bisa ditanyakan kepada saya di: 
+Facebook : https://www.facebook.com/jodykrido
+Telegram : https://t.me/jodysuseno
