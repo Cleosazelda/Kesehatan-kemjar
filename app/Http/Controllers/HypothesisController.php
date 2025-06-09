@@ -19,20 +19,24 @@ class HypothesisController extends Controller
      */
     public function index()
     {
+        // Peningkatan: Tambahkan pengecekan null untuk menghindari error
+        $setting_hypothesis = Setting::where('component', 'hypothesis')->first();
+        $title_hypothesis = $setting_hypothesis ? $setting_hypothesis->value : 'Hypothesis';
+
         return view('hypothesis.index', [
-            'title' => 'Hypothesis - ' . Setting::where('component', 'hypothesis')->first()->value,
-            'hypothesis_data' => Hypothesis::orderBy('id', 'desc')->get()
+            'title' => 'Hypothesis - ' . $title_hypothesis,
+            'hypothesis_data' => Hypothesis::with('images')->orderBy('id', 'desc')->get() // Eager load images
         ]);
     }
 
     public function autoCode()
     {
-        $lates_evidence = Hypothesis::orderby('id', 'desc')->first();
-        // Tambahkan pengecekan jika tabel hipotesis masih kosong
-        if (!$lates_evidence) {
+        $lates_hypothesis = Hypothesis::orderby('id', 'desc')->first();
+        // Pengecekan jika tabel hipotesis masih kosong (sudah baik)
+        if (!$lates_hypothesis) {
             return "P001";
         }
-        $code = $lates_evidence->code;
+        $code = $lates_hypothesis->code;
         $order = (int) substr($code, 2, 3);
         $order++;
         $letter = "P";
@@ -56,42 +60,30 @@ class HypothesisController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input yang Diperketat
+        // Validasi Input yang sudah baik dan diperketat
         $request->validate([
+            'code' => 'required|unique:hypotheses,code',
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'solution' => 'required|string',
-            // Validasi file gambar lebih spesifik dan aman
-            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048' // max 2MB per gambar
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        // Buat data Hypothesis
-        $hypothesis = Hypothesis::create([
-            'code' => $request->code,
-            'name' => $request->name,
-            'description' => $request->description,
-            'solution' => $request->solution,
-        ]);
+        $hypothesis = Hypothesis::create($request->except('image'));
 
-        // 2. Proses Upload File yang Aman
+        // Proses Upload File yang Aman
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
-                // Buat nama file yang unik dan aman untuk mencegah konflik dan path traversal
                 $fileName = 'hypothesis-' . $hypothesis->id . '-' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . time() . '.' . $image->getClientOriginalExtension();
-
-                // Simpan file ke 'storage/app/public/hypothesis-images'
-                // Cara ini lebih aman daripada menyimpan langsung di folder public
                 $image->storeAs('public/hypothesis-images', $fileName);
 
-                // Simpan nama file yang aman ke database
                 HypothesisImage::create([
                     'hypothesis_id' => $hypothesis->id,
-                    'image_path' => $fileName, // Gunakan 'image_path' sesuai model Anda
+                    'image_path' => $fileName,
                 ]);
             }
         }
 
-        // Buat data Rule untuk setiap Evidence
         foreach (Evidence::all() as $value) {
             Rule::create([
                 'evidence_id' => $value->id,
@@ -119,7 +111,7 @@ class HypothesisController extends Controller
     {
         return view('hypothesis.edit', [
             'title' => 'Hypothesis',
-            'get_hypothesis' => Hypothesis::findOrFail($id)
+            'get_hypothesis' => Hypothesis::with('images')->findOrFail($id)
         ]);
     }
 
@@ -128,29 +120,25 @@ class HypothesisController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // 1. Validasi yang konsisten dengan store
+        $hypothesis = Hypothesis::findOrFail($id);
+        
         $request->validate([
+            'code' => 'required|unique:hypotheses,code,' . $hypothesis->id,
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'solution' => 'required|string',
-            // Gambar boleh kosong saat update
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $hypothesis = Hypothesis::findOrFail($id);
+        $hypothesis->update($request->except(['_token', '_method', 'image']));
 
-        // Jika ada gambar baru yang diunggah
         if ($request->hasFile('image')) {
-            // Hapus gambar lama dari penyimpanan dan database
             $oldImages = HypothesisImage::where('hypothesis_id', $hypothesis->id)->get();
             foreach ($oldImages as $oldImage) {
-                // Hapus file lama dari 'storage/app/public/hypothesis-images'
                 Storage::delete('public/hypothesis-images/' . $oldImage->image_path);
-                // Hapus record dari database
                 $oldImage->delete();
             }
 
-            // Simpan gambar baru dengan cara yang aman
             foreach ($request->file('image') as $image) {
                 $fileName = 'hypothesis-' . $hypothesis->id . '-' . Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . time() . '.' . $image->getClientOriginalExtension();
                 $image->storeAs('public/hypothesis-images', $fileName);
@@ -161,15 +149,7 @@ class HypothesisController extends Controller
                 ]);
             }
         }
-
-        // Update data lainnya
-        $hypothesis->update([
-            'code' => $request->code,
-            'name' => $request->name,
-            'description' => $request->description,
-            'solution' => $request->solution,
-        ]);
-
+        
         return redirect()->route('hypothesis.index')->with('status', 'Data updated successfully!');
     }
 
@@ -182,16 +162,14 @@ class HypothesisController extends Controller
         $hypothesis = Hypothesis::findOrFail($id);
         $images = HypothesisImage::where('hypothesis_id', $hypothesis->id)->get();
 
-        // Hapus semua file gambar terkait dari storage
         foreach ($images as $image) {
             Storage::delete('public/hypothesis-images/' . $image->image_path);
-            $image->delete(); // Hapus record dari database
+            $image->delete();
         }
 
-        // Hapus data terkait sebelum menghapus hipotesis utama
         Diagnosis::where('hypothesis_id', $id)->delete();
         Rule::where('hypothesis_id', $id)->delete();
-        $hypothesis->delete(); // Hapus hipotesis
+        $hypothesis->delete();
 
         return redirect()->route('hypothesis.index')->with('status', 'Data deleted succesfully!');
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule; // Import Rule untuk validasi email unik
 
 class AuthController extends Controller
 {
@@ -18,21 +19,27 @@ class AuthController extends Controller
 
     public function login_process(Request $request)
     {
+        // Menghilangkan | di akhir untuk best practice
         $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required|min:6|'
+            'password' => 'required|min:6'
         ]);
 
-        if(Auth::attempt($credentials)){
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate(); // Regenerate session untuk keamanan
             return redirect('/');
         }
 
-        return redirect('/login')->with('status','Login Gagal!');
+        return back()->with('status','Login Gagal!'); // Gunakan back() untuk kembali ke halaman sebelumnya
     }
 
-    public function logout()
+    public function logout(Request $request) // Tambahkan Request
     {
         Auth::logout();
+
+        $request->session()->invalidate(); // Invalidate session
+        $request->session()->regenerateToken(); // Regenerate CSRF token
+
         return redirect('/login');
     }
 
@@ -43,27 +50,38 @@ class AuthController extends Controller
         ]);
     }
 
-    public function profile_update(Request $request, $id)
+    /**
+     * Memperbarui profil pengguna yang sedang terotentikasi.
+     * Kerentanan IDOR sudah diperbaiki dengan tidak menggunakan $id dari URL.
+     */
+    public function profile_update(Request $request)
     {
+        // 1. Dapatkan pengguna yang sedang login. Ini cara yang aman.
+        $user = Auth::user();
+
+        // 2. Validasi input
         $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'min:6|nullable',
-            'repassword' => 'same:password|nullable',
+            'name' => 'required|string|max:255',
+            // Pastikan email unik, tapi abaikan email milik pengguna saat ini
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|min:6',
+            'repassword' => 'same:password',
         ]);
 
-        if($request->password == ''){
-            $password = User::findOrFail($id)->password;
-        } else {
-            $password = bcrypt($request->password);
-        }
-
-        User::where('id',$id)->update([
+        // 3. Siapkan data untuk diupdate
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $password,
-        ]);
+        ];
 
-        return redirect()->route('profile.index')->with('status','User updated successfully');
+        // 4. Periksa apakah pengguna mengisi field password baru
+        if ($request->filled('password')) {
+            $updateData['password'] = bcrypt($request->password);
+        }
+
+        // 5. Lakukan update
+        $user->update($updateData);
+
+        return redirect()->route('profile.index')->with('status', 'User updated successfully');
     }
 }

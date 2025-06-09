@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // PERBAIKAN: Tambahkan baris ini untuk mengimpor Auth Facade
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -16,7 +19,7 @@ class UserController extends Controller
             'title' => 'User',
             'user_data' => User::orderBy('id', 'desc')->get()
         ]);
-    } 
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -34,33 +37,28 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'repassword' => 'required|same:password',
-            'address' => 'required',
+            'address' => 'required|string',
+            'role' => ['required', Rule::in(['admin', 'user'])],
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $defaultAvatarPath = 'avatars/default-avatar.png';
+        $avatarPath = 'avatars/default-avatar.png';
 
-        // Periksa apakah pengguna mengunggah avatar
         if ($request->hasFile('avatar')) {
-            $userName = $request->input('name');
-            $safeUserName = str_replace(' ', '_', $userName);
-            // Simpan avatar yang diunggah ke dalam storage/public/avatars
-            $avatarPath = $request->file('avatar');
-            $imageName = 'avatar' . $safeUserName . '.' . $avatarPath->getClientOriginalExtension();
-            $avatarPath->storeAs('Public/Avatar-Image', $imageName);
-        } else {
-            // Gunakan avatar default jika tidak ada yang diunggah
-            $avatarPath = $defaultAvatarPath;
+            $userName = str_replace(' ', '_', $request->input('name'));
+            $file = $request->file('avatar');
+            $imageName = 'avatar-' . $userName . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $avatarPath = $file->storeAs('public/avatars', $imageName);
         }
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
             'address' => $request->address,
             'role' => $request->role,
             'image' => $avatarPath
@@ -68,6 +66,7 @@ class UserController extends Controller
 
         return redirect()->route('user.index')->with('status', 'User created successfully');
     }
+
     /**
      * Display the specified resource.
      */
@@ -92,27 +91,24 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'min:6|nullable',
-            'repassword' => 'same:password|nullable',
-            'address' => 'required'
-        ]);
+        $user = User::findOrFail($id);
 
-        if ($request->password == '') {
-            $password = User::findOrFail($id)->password;
-        } else {
-            $password = bcrypt($request->password);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|min:6',
+            'repassword' => 'same:password|nullable',
+            'address' => 'required|string',
+            'role' => ['required', Rule::in(['admin', 'user'])],
+        ]);
+        
+        $updateData = $request->only(['name', 'email', 'address', 'role']);
+
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
         }
 
-        User::where('id', $id)->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $password,
-            'address' => $request->address,
-            'role' => $request->role,
-        ]);
+        $user->update($updateData);
 
         return redirect()->route('user.index')->with('status', 'User updated successfully');
     }
@@ -122,6 +118,11 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        // Untuk mencegah admin menghapus akunnya sendiri secara tidak sengaja
+        if (Auth::id() == $id) {
+            return redirect()->route('user.index')->with('error', 'You cannot delete your own account.');
+        }
+
         User::destroy($id);
         return redirect()->route('user.index')->with('status', 'User deleted successfully');
     }
