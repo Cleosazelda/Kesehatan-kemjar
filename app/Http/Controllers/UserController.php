@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // PERBAIKAN: Tambahkan baris ini untuk mengimpor Auth Facade
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log; // <-- Tambahkan ini untuk Logging
 
 class UserController extends Controller
 {
@@ -55,7 +56,7 @@ class UserController extends Controller
             $avatarPath = $file->storeAs('public/avatars', $imageName);
         }
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -64,7 +65,13 @@ class UserController extends Controller
             'image' => $avatarPath
         ]);
 
-        return redirect()->route('user.index')->with('status', 'User created successfully');
+        // == PENAMBAHAN LOGGING: SAAT MEMBUAT USER BARU ==
+        $admin = Auth::user();
+        $logMessage = "PEMBUATAN PENGGUNA: Pengguna baru '{$user->name}' (Role: {$user->role}) telah dibuat oleh Admin '{$admin->name}' (ID: {$admin->id}).";
+        Log::channel('admin_activity')->info($logMessage);
+        // =================================================
+
+        return redirect()->route('admin.users.index')->with('status', 'User created successfully');
     }
 
     /**
@@ -110,7 +117,13 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        return redirect()->route('user.index')->with('status', 'User updated successfully');
+        // == PENAMBAHAN LOGGING: SAAT MEMPERBARUI USER ==
+        $admin = Auth::user();
+        $logMessage = "PEMBARUAN PENGGUNA: Data pengguna '{$user->name}' (ID: {$user->id}) telah diperbarui oleh Admin '{$admin->name}' (ID: {$admin->id}).";
+        Log::channel('admin_activity')->info($logMessage);
+        // ===============================================
+
+        return redirect()->route('admin.users.index')->with('status', 'User updated successfully');
     }
 
     /**
@@ -118,12 +131,20 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        $user = User::findOrFail($id); // Ambil data user sebelum dihapus
+
         // Untuk mencegah admin menghapus akunnya sendiri secara tidak sengaja
         if (Auth::id() == $id) {
-            return redirect()->route('user.index')->with('error', 'You cannot delete your own account.');
+            return redirect()->route('admin.users.index')->with('error', 'You cannot delete your own account.');
         }
+        
+        // == PENAMBAHAN LOGGING: SAAT MENGHAPUS USER ==
+        $admin = Auth::user();
+        $logMessage = "PENGHAPUSAN PENGGUNA: Pengguna '{$user->name}' (ID: {$user->id}) telah dihapus oleh Admin '{$admin->name}' (ID: {$admin->id}).";
+        Log::channel('admin_activity')->info($logMessage);
+        // =============================================
 
         User::destroy($id);
-        return redirect()->route('user.index')->with('status', 'User deleted successfully');
+        return redirect()->route('admin.users.index')->with('status', 'User deleted successfully');
     }
 }

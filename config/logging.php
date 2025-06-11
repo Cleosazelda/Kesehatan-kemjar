@@ -126,6 +126,11 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        'admin_activity' => [
+        'driver' => 'single',
+        'path' => storage_path('logs/admin_activity.log'), // File log akan disimpan di sini
+        'level' => 'info', // Level log yang akan dicatat
+    ],
     ],
 
 ];
